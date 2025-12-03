@@ -9,8 +9,8 @@ const Reserveer = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      {/* Full-screen section with background image */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden mt-[34px]">
+      {/* Full-screen section met achtergrondafbeelding; header is transparant en ligt eroverheen */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background Image with blur */}
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -26,16 +26,16 @@ const Reserveer = () => {
           <div className="flex flex-col justify-center space-y-8">
             {/* Title */}
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif text-white mb-6">
-              Reserveer
-            </h1>
+            Reserveer
+          </h1>
 
             {/* Body Text */}
             <div className="space-y-4 text-white/90 text-lg leading-relaxed">
               <p>
-                Reserveer nu je tafel en beleef een culinaire ervaring die je niet snel zult vergeten.
-                Of je nu een gezellige avond met vrienden plant of een intiem diner voor twee,
-                we heten je graag welkom bij Vjeu Djeu.
-              </p>
+            Reserveer nu je tafel en beleef een culinaire ervaring die je niet snel zult vergeten.
+            Of je nu een gezellige avond met vrienden plant of een intiem diner voor twee,
+            we heten je graag welkom bij Vjeu Djeu.
+          </p>
               <p>
                 Reserveren kan telefonisch of via het invulformulier. Voor groepen vanaf 10 personen
                 raden we aan om telefonisch contact op te nemen voor de beste service.
@@ -56,7 +56,7 @@ const Reserveer = () => {
               Allergisch? Laat het ons weten. Onze gerechten kunnen sporen van allergenen bevatten
               en de samenstelling kan variëren. Dank voor uw begrip.
             </p>
-          </div>
+              </div>
 
           {/* Right Section - Reservation Widget (Iframe) */}
           <div className="flex items-center justify-center">
@@ -74,7 +74,7 @@ const Reserveer = () => {
                 }}
                 title="Reservering formulier"
               />
-            </div>
+          </div>
         </div>
       </section>
 

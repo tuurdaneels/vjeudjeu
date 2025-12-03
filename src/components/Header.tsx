@@ -30,26 +30,16 @@ const Header = () => {
 
   return (
     <>
-      {/* Announcement Bar */}
-      <div className={cn(
-        "announcement-bar text-sm h-[10px] flex items-center justify-center",
-        hasWhiteHeader
-          ? "bg-white text-black"
-          : "bg-black text-white"
-      )}>
-        Onze Winterstübe komt eraan … én het wildseizoen start weer!
-      </div>
-
-      {/* Main Header */}
+      {/* Main Header - transparent pages overlay content like the home hero */}
       <header className={cn(
-        "relative z-50 backdrop-blur-sm transition-colors",
+        "backdrop-blur-sm transition-colors z-50",
         hasTransparentHeader
-          ? "bg-transparent" 
+          ? "absolute top-0 left-0 right-0 bg-transparent"
           : hasWhiteHeader
-          ? "bg-white"
-          : "bg-background/95"
+          ? "bg-white relative"
+          : "bg-background/95 relative"
       )}>
-        <div className=" mx-auto pt-3 ">
+        <div className=" mx-auto py-4 lg:py-2">
           <div className="relative flex items-center">
             {/* Left side - Empty for spacing */}
             <div className="flex-1 flex items-center">
@@ -71,7 +61,7 @@ const Header = () => {
 
             {/* Right side - CTA Buttons and Mobile Menu */}
             <div className="flex-1 flex items-center justify-end">
-              <div className="hidden md:flex items-center gap-3 px-4">
+              <div className="hidden lg:flex items-center gap-3 px-4">
                 <Link 
                   to="/reserveer" 
                   className={hasWhiteHeader ? "btn-filled-inverse" : "btn-filled"}
