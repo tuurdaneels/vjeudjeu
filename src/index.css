@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Roboto:wght@400;500;600;700&display=swap');
+
+@font-face {
+  font-family: 'Sanford Book';
+  src: url('./assets/Sanford-0103_demo.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 4%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 0 0% 100%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 100%;
+
+    --radius: 0rem;
+
+    /* Custom colors */
+    --gold: 0 0% 100%;
+    --gold-light: 0 0% 100%;
+    --dark-overlay: 0 0% 0%;
+  }
+
+  .dark {
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  h1, h2 {
+    font-family: 'Sanford Book', serif;
+  }
+}
+
+@layer components {
+  .nav-link {
+    @apply text-xs tracking-[0.2em] uppercase text-foreground/80 hover:text-foreground transition-colors duration-300 relative;
+  }
+
+  .nav-link::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-full h-px bg-foreground scale-x-0 origin-right transition-transform duration-300;
+  }
+
+  .nav-link:hover::after,
+  .nav-link.active::after {
+    @apply scale-x-100 origin-left;
+  }
+
+  .nav-link.active {
+    @apply text-foreground;
+  }
+
+
+  .btn-filled {
+    @apply px-6 py-2.5 bg-foreground/10 border border-foreground/30 text-foreground text-sm tracking-wider 
+           hover:bg-foreground hover:text-background transition-all duration-300 rounded-full;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 600;
+  }
+
+  .btn-filled-inverse {
+    @apply px-6 py-2.5 bg-black border border-black text-white text-sm tracking-wider 
+           hover:bg-black/80 hover:text-white transition-all duration-300 rounded-full;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 600;
+  }
+
+  .section-title {
+    font-family: 'Sanford Book', serif;
+    @apply text-4xl md:text-5xl font-normal text-foreground;
+  }
+
+  .hero-title {
+    font-family: 'Sanford Book', serif;
+    @apply text-4xl md:text-5xl font-normal text-foreground leading-tight;
+  }
+
+  .announcement-bar {
+    @apply bg-background text-foreground text-[16px] py-1 text-center tracking-wide font-serif;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.8s ease-out forwards;
+  }
+}
