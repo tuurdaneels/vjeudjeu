@@ -1,64 +1,58 @@
 import Layout from "@/components/Layout";
 import { useEffect, useState } from "react";
+import { getImages } from "@/lib/supabaseStorage";
+import { Loader2 } from "lucide-react";
 
 const Suggesties = () => {
   const [images, setImages] = useState<string[]>([]);
-
-  const loadImages = () => {
-    const savedImages = localStorage.getItem("menu_suggesties_images");
-    if (savedImages) {
-      setImages(JSON.parse(savedImages));
-    }
-  };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadImages();
-    
-    // Listen for updates
-    const handleStorageChange = () => {
-      loadImages();
-    };
-    
-    // Check for updates every second
-    const interval = setInterval(() => {
-      const lastUpdate = localStorage.getItem("menu_suggesties_updated");
-      if (lastUpdate) {
-        loadImages();
+    const loadImages = async () => {
+      try {
+        const imageUrls = await getImages("suggesties");
+        setImages(imageUrls);
+      } catch (error) {
+        console.error("Error loading images:", error);
+      } finally {
+        setLoading(false);
       }
-    }, 1000);
-
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("storage", handleStorageChange);
     };
+
+    loadImages();
   }, []);
 
   return (
     <Layout>
       <section className="py-20 bg-white min-h-[calc(100vh-320px)]">
         <div className="container mx-auto px-4">
-          <h1 className="section-title text-center mb-12">Suggesties</h1>
+          <h1 className="section-title text-center mb-12 text-black">Suggesties</h1>
           
-          <div className="max-w-4xl mx-auto space-y-6">
-            {images.length > 0 ? (
-              images.map((image, index) => (
-                <div key={index} className="w-full">
-                  <img
-                    src={image}
-                    alt={`Suggestie ${index + 1}`}
-                    className="w-full h-auto object-contain"
-                  />
+          {loading ? (
+            <div className="text-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+              <p className="text-muted-foreground">Menu laden...</p>
+            </div>
+          ) : (
+            <div className="max-w-4xl mx-auto space-y-6">
+              {images.length > 0 ? (
+                images.map((image, index) => (
+                  <div key={index} className="w-full">
+                    <img
+                      src={image}
+                      alt={`Suggestie ${index + 1}`}
+                      className="w-full h-auto object-contain"
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <p>Geen suggestie foto's beschikbaar.</p>
+                  <p className="text-sm mt-2">Upload foto's via de admin pagina.</p>
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                <p>Geen suggestie foto's beschikbaar.</p>
-                <p className="text-sm mt-2">Upload foto's via de admin pagina.</p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
     </Layout>
@@ -66,4 +60,3 @@ const Suggesties = () => {
 };
 
 export default Suggesties;
-

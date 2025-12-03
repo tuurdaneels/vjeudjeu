@@ -81,7 +81,7 @@ const Header = () => {
                   Reserveer
                 </Link>
                 <Link 
-                  to="/slagerij" 
+                  to="https://resto-online.be/vjeudjeu" 
                   className={hasWhiteHeader ? "btn-filled-inverse" : "btn-filled"}
                 >
                   Slagerij & Take-away
@@ -168,7 +168,7 @@ const Header = () => {
                   Reserveer
                 </Link>
                 <Link 
-                  to="/slagerij" 
+                  to="https://resto-online.be/vjeudjeu" 
                   className={cn(
                     "text-center",
                     hasWhiteHeader ? "btn-filled-inverse" : "btn-filled"

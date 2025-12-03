@@ -3,7 +3,8 @@ import Layout from "@/components/Layout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { X, Upload, LogOut } from "lucide-react";
+import { X, Upload, LogOut, Loader2 } from "lucide-react";
+import { uploadMultipleImages, getImages, deleteImage, type MenuCategory } from "@/lib/supabaseStorage";
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -11,6 +12,8 @@ const Admin = () => {
   const [lunchImages, setLunchImages] = useState<string[]>([]);
   const [dinerImages, setDinerImages] = useState<string[]>([]);
   const [suggestiesImages, setSuggestiesImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Check if already logged in
   useEffect(() => {
@@ -21,14 +24,23 @@ const Admin = () => {
     }
   }, []);
 
-  const loadImages = () => {
-    const lunch = localStorage.getItem("menu_lunch_images");
-    const diner = localStorage.getItem("menu_diner_images");
-    const suggesties = localStorage.getItem("menu_suggesties_images");
-    
-    if (lunch) setLunchImages(JSON.parse(lunch));
-    if (diner) setDinerImages(JSON.parse(diner));
-    if (suggesties) setSuggestiesImages(JSON.parse(suggesties));
+  const loadImages = async () => {
+    setLoading(true);
+    try {
+      const [lunch, diner, suggesties] = await Promise.all([
+        getImages("lunch"),
+        getImages("diner"),
+        getImages("suggesties"),
+      ]);
+      setLunchImages(lunch);
+      setDinerImages(diner);
+      setSuggestiesImages(suggesties);
+    } catch (error) {
+      console.error("Error loading images:", error);
+      alert("Fout bij het laden van foto's");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogin = (e: React.FormEvent) => {
@@ -51,56 +63,78 @@ const Admin = () => {
     localStorage.removeItem("admin_authenticated");
   };
 
-  const handleImageUpload = (category: "lunch" | "diner" | "suggesties", files: FileList | null) => {
+  const handleImageUpload = async (
+    category: MenuCategory,
+    files: FileList | null
+  ) => {
     if (!files || files.length === 0) return;
 
-    const newImages: string[] = [];
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        newImages.push(result);
-        
-        if (newImages.length === files.length) {
-          const storageKey = `menu_${category}_images`;
-          const existingImages = localStorage.getItem(storageKey);
-          const allImages = existingImages 
-            ? [...JSON.parse(existingImages), ...newImages]
-            : newImages;
-          
-          localStorage.setItem(storageKey, JSON.stringify(allImages));
-          
-          // Update state
-          if (category === "lunch") setLunchImages(allImages);
-          if (category === "diner") setDinerImages(allImages);
-          if (category === "suggesties") setSuggestiesImages(allImages);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    setUploading(true);
+    try {
+      const fileArray = Array.from(files);
+      const urls = await uploadMultipleImages(fileArray, category);
+      
+      // Update state
+      if (category === "lunch") {
+        setLunchImages((prev) => [...prev, ...urls]);
+      } else if (category === "diner") {
+        setDinerImages((prev) => [...prev, ...urls]);
+      } else if (category === "suggesties") {
+        setSuggestiesImages((prev) => [...prev, ...urls]);
+      }
+      
+      alert(`${fileArray.length} foto('s) succesvol geüpload!`);
+    } catch (error) {
+      console.error("Error uploading images:", error);
+      alert("Fout bij het uploaden van foto's");
+    } finally {
+      setUploading(false);
+    }
   };
 
-  const handleRemoveImage = (category: "lunch" | "diner" | "suggesties", index: number) => {
-    const storageKey = `menu_${category}_images`;
+  const handleRemoveImage = async (
+    category: MenuCategory,
+    index: number
+  ) => {
     let images: string[] = [];
-    
-    if (category === "lunch") images = [...lunchImages];
-    if (category === "diner") images = [...dinerImages];
-    if (category === "suggesties") images = [...suggestiesImages];
-    
-    images.splice(index, 1);
-    localStorage.setItem(storageKey, JSON.stringify(images));
-    
-    if (category === "lunch") setLunchImages(images);
-    if (category === "diner") setDinerImages(images);
-    if (category === "suggesties") setSuggestiesImages(images);
+    let imageUrl: string = "";
+
+    if (category === "lunch") {
+      images = [...lunchImages];
+      imageUrl = images[index];
+    } else if (category === "diner") {
+      images = [...dinerImages];
+      imageUrl = images[index];
+    } else if (category === "suggesties") {
+      images = [...suggestiesImages];
+      imageUrl = images[index];
+    }
+
+    if (!confirm("Weet je zeker dat je deze foto wilt verwijderen?")) {
+      return;
+    }
+
+    try {
+      await deleteImage(imageUrl);
+      images.splice(index, 1);
+
+      if (category === "lunch") {
+        setLunchImages(images);
+      } else if (category === "diner") {
+        setDinerImages(images);
+      } else if (category === "suggesties") {
+        setSuggestiesImages(images);
+      }
+
+      alert("Foto verwijderd!");
+    } catch (error) {
+      console.error("Error deleting image:", error);
+      alert("Fout bij het verwijderen van de foto");
+    }
   };
 
-  const handlePublish = (category: "lunch" | "diner" | "suggesties") => {
-    // Images are already saved in localStorage, just show confirmation
+  const handlePublish = (category: MenuCategory) => {
     alert(`${category.charAt(0).toUpperCase() + category.slice(1)} menu is gepubliceerd!`);
-    // Trigger page reload on menu pages by updating a timestamp
-    localStorage.setItem(`menu_${category}_updated`, Date.now().toString());
   };
 
   if (!isAuthenticated) {
@@ -123,6 +157,19 @@ const Admin = () => {
                 </Button>
               </form>
             </div>
+          </div>
+        </section>
+      </Layout>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Layout>
+        <section className="py-20 bg-background min-h-[calc(100vh-320px)] flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+            <p>Foto's laden...</p>
           </div>
         </section>
       </Layout>
@@ -161,7 +208,14 @@ const Admin = () => {
                     multiple
                     onChange={(e) => handleImageUpload("lunch", e.target.files)}
                     className="cursor-pointer"
+                    disabled={uploading}
                   />
+                  {uploading && (
+                    <p className="text-sm text-muted-foreground mt-2">
+                      <Loader2 className="h-4 w-4 animate-spin inline mr-2" />
+                      Uploaden...
+                    </p>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 gap-4 mt-6">
                   {lunchImages.map((image, index) => (
@@ -205,7 +259,14 @@ const Admin = () => {
                     multiple
                     onChange={(e) => handleImageUpload("diner", e.target.files)}
                     className="cursor-pointer"
+                    disabled={uploading}
                   />
+                  {uploading && (
+                    <p className="text-sm text-muted-foreground mt-2">
+                      <Loader2 className="h-4 w-4 animate-spin inline mr-2" />
+                      Uploaden...
+                    </p>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 gap-4 mt-6">
                   {dinerImages.map((image, index) => (
@@ -249,7 +310,14 @@ const Admin = () => {
                     multiple
                     onChange={(e) => handleImageUpload("suggesties", e.target.files)}
                     className="cursor-pointer"
+                    disabled={uploading}
                   />
+                  {uploading && (
+                    <p className="text-sm text-muted-foreground mt-2">
+                      <Loader2 className="h-4 w-4 animate-spin inline mr-2" />
+                      Uploaden...
+                    </p>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 gap-4 mt-6">
                   {suggestiesImages.map((image, index) => (
@@ -287,4 +355,3 @@ const Admin = () => {
 };
 
 export default Admin;
-

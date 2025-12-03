@@ -22,7 +22,7 @@ const Footer = () => {
                 <Link to="/reserveer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Reserveren
                 </Link>
-                <Link to="/slagerij" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link to="https://resto-online.be/vjeudjeu" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Take-away
                 </Link>
                 <Link to="/faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">

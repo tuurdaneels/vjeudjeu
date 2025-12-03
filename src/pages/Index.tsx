@@ -39,7 +39,7 @@ const Index = () => {
             <Link to="/reserveer" className="btn-filled">
               Reserveer
             </Link>
-            <Link to="/slagerij" className="btn-filled">
+            <Link to="https://resto-online.be/vjeudjeu" className="btn-filled">
               Slagerij & Take-away
             </Link>
             <Link to="/suggesties" className="btn-filled">
