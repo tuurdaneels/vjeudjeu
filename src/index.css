@@ -119,7 +119,10 @@
   }
 
   .announcement-bar {
-    @apply bg-background text-foreground text-[16px] py-1 text-center tracking-wide font-serif;
+    @apply text-[10px] text-center tracking-wide font-serif;
+    height: 10px;
+    line-height: 10px;
+    overflow: hidden;
   }
 }
 

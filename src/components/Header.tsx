@@ -32,12 +32,10 @@ const Header = () => {
     <>
       {/* Announcement Bar */}
       <div className={cn(
-        "announcement-bar",
-        hasTransparentHeader
-          ? "absolute top-0 left-0 right-0 z-50 bg-black" 
-          : hasWhiteHeader
+        "announcement-bar text-sm h-[10px] flex items-center justify-center",
+        hasWhiteHeader
           ? "bg-white text-black"
-          : ""
+          : "bg-black text-white"
       )}>
         Onze Winterstübe komt eraan … én het wildseizoen start weer!
       </div>
@@ -46,7 +44,7 @@ const Header = () => {
       <header className={cn(
         "relative z-50 backdrop-blur-sm transition-colors",
         hasTransparentHeader
-          ? "bg-transparent absolute top-8 left-0 right-0" 
+          ? "bg-transparent" 
           : hasWhiteHeader
           ? "bg-white"
           : "bg-background/95"

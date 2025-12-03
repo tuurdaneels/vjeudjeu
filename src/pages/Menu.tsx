@@ -154,17 +154,17 @@ const Menu = () => {
                         key={`${currentIndex}-${idx}`}
                         className="relative overflow-hidden rounded-lg transition-opacity duration-700 ease-in-out"
                       >
-                        <img
+              <img
                           src={image.src}
                           alt={image.alt}
                           className="w-full h-full object-cover"
-                        />
+              />
                         {/* Gradient overlay voor betere leesbaarheid */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                       </div>
                     );
                   })}
-                </div>
+            </div>
 
                 {/* Image Counter */}
                 <div className="absolute bottom-6 right-6 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-full text-sm z-10">
