@@ -21,5 +21,18 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      ;(function (d, s, id) {
+        const el = d.getElementsByTagName(s)[0]
+        if (d.getElementById(id) || el.parentNode == null) return
+        var js = d.createElement(s)
+        js.id = id
+        js.src = 'https://sdk.zenchef.com/v1/sdk.min.js'
+        el.parentNode.insertBefore(js, el)
+      })(document, 'script', 'zenchef-sdk')
+    </script>
+    <div class="zc-widget-config"
+       data-restaurant="373369"
+       data-open="2000"></div>
   </body>
 </html>
