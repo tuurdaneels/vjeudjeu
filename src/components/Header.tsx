@@ -39,8 +39,11 @@ const Header = () => {
           ? "bg-white relative"
           : "bg-background/95 relative"
       )}>
-        <div className=" mx-auto py-4 lg:py-2">
-          <div className="relative flex items-center">
+        <div className=" mx-auto pb-4 lg:pb-2">
+          <div className="announcement-bar text-[12px] md:text-[14px] py-[5px]">
+            Onze Winterstübe komt eraan … én het wildseizoen start weer!
+          </div>
+          <div className="relative flex items-center pt-2">
             {/* Left side - Empty for spacing */}
             <div className="flex-1 flex items-center">
             </div>
@@ -72,7 +75,7 @@ const Header = () => {
                   to="https://resto-online.be/vjeudjeu" 
                   className={hasWhiteHeader ? "btn-filled-inverse" : "btn-filled"}
                 >
-                  Slagerij & Take-away
+                  Feestmenu's & Take-away
                 </Link>
               </div>
               {/* Mobile Menu Button - Right side */}
@@ -162,7 +165,7 @@ const Header = () => {
                     hasWhiteHeader ? "btn-filled-inverse" : "btn-filled"
                   )}
                 >
-                  Slagerij & Take-away
+                  Feestmenu's & Take-away
                 </Link>
               </div>
             </div>

@@ -119,8 +119,8 @@
   }
 
   .announcement-bar {
-    @apply text-[10px] text-center tracking-wide font-serif;
-    height: 10px;
+    @apply text-center tracking-wide font-serif bg-background;
+    height: 20px;
     line-height: 10px;
     overflow: hidden;
   }
