@@ -32,7 +32,7 @@ const Header = () => {
     <>
       {/* Main Header - transparent pages overlay content like the home hero */}
       <header className={cn(
-        "backdrop-blur-sm transition-colors z-50",
+        "transition-colors z-50",
         hasTransparentHeader
           ? "absolute top-0 left-0 right-0 bg-transparent"
           : hasWhiteHeader
@@ -43,7 +43,7 @@ const Header = () => {
           <div className="announcement-bar text-[12px] md:text-[14px] py-[5px]">
             Onze Winterstübe komt eraan … én het wildseizoen start weer!
           </div>
-          <div className="relative flex items-center pt-2">
+          <div className="relative flex items-center pt-3 lg:pt-2">
             {/* Left side - Empty for spacing */}
             <div className="flex-1 flex items-center">
             </div>
@@ -121,7 +121,7 @@ const Header = () => {
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <nav className={cn(
-            "lg:hidden absolute top-full left-0 right-0 backdrop-blur-sm border-t py-4",
+            "lg:hidden absolute top-full left-0 right-0 border-t py-4",
             hasWhiteHeader 
               ? "bg-white border-black/20" 
               : "bg-background/95 border-border"
