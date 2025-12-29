@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { X, Upload, LogOut, Loader2 } from "lucide-react";
 import { uploadMultipleImages, getImages, deleteImage, type MenuCategory } from "@/lib/supabaseStorage";
+import { supabase } from "@/lib/supabase";
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [lunchImages, setLunchImages] = useState<string[]>([]);
   const [dinerImages, setDinerImages] = useState<string[]>([]);
@@ -15,13 +17,38 @@ const Admin = () => {
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Check if already logged in
+  // Check Supabase session & listen to auth changes
   useEffect(() => {
-    const authStatus = localStorage.getItem("admin_authenticated");
-    if (authStatus === "true") {
-      setIsAuthenticated(true);
-      loadImages();
-    }
+    let mounted = true;
+
+    const init = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (mounted && session) {
+        setIsAuthenticated(true);
+        loadImages();
+      }
+    };
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
+      if (session) {
+        setIsAuthenticated(true);
+        loadImages();
+      } else {
+        setIsAuthenticated(false);
+      }
+    });
+
+    init();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const loadImages = async () => {
@@ -43,24 +70,28 @@ const Admin = () => {
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Get password from environment variable
-    const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD || "admin123";
-    
-    if (password === adminPassword) {
-      setIsAuthenticated(true);
-      localStorage.setItem("admin_authenticated", "true");
-      loadImages();
-    } else {
-      alert("Onjuist wachtwoord");
+    if (!email) {
+      alert("Vul een e-mailadres in");
+      return;
     }
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      alert(`Inloggen mislukt: ${error.message}`);
+      return;
+    }
+
+    setIsAuthenticated(true);
+    await loadImages();
     setPassword("");
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setIsAuthenticated(false);
-    localStorage.removeItem("admin_authenticated");
   };
 
   const handleImageUpload = async (
@@ -146,11 +177,20 @@ const Admin = () => {
               <h1 className="section-title text-center mb-6">Admin Login</h1>
               <form onSubmit={handleLogin} className="space-y-4">
                 <Input
+                  type="email"
+                  placeholder="E-mailadres"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full"
+                  autoComplete="username"
+                />
+                <Input
                   type="password"
                   placeholder="Wachtwoord"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full"
+                  autoComplete="current-password"
                 />
                 <Button type="submit" className="w-full">
                   Inloggen
