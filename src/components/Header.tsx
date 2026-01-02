@@ -75,7 +75,7 @@ const Header = () => {
                   to="https://resto-online.be/vjeudjeu" 
                   className={hasWhiteHeader ? "btn-filled-inverse" : "btn-filled"}
                 >
-                  Feestmenu's & Take-away
+                  Slagerij & Take-away
                 </Link>
               </div>
               {/* Mobile Menu Button - Right side */}
@@ -165,7 +165,7 @@ const Header = () => {
                     hasWhiteHeader ? "btn-filled-inverse" : "btn-filled"
                   )}
                 >
-                  Feestmenu's & Take-away
+                  Slagerij & Take-away
                 </Link>
               </div>
             </div>

@@ -47,7 +47,7 @@ const Index = () => {
               Reserveer
             </Link>
             <Link to="https://resto-online.be/vjeudjeu" className="btn-filled">
-              Feestmenu's & Take-away
+              Slagerij & Take-away
             </Link>
             <Link to="/suggesties" className="btn-filled">
               Suggesties
