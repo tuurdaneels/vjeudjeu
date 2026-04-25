@@ -41,7 +41,7 @@ const Header = () => {
       )}>
         <div className=" mx-auto pb-4 lg:pb-2">
           <div className="announcement-bar text-[12px] md:text-[14px] py-[5px]">
-            Onze Winterstübe komt eraan … én het wildseizoen start weer!
+            Wist je dat we ook een slagerij en take-away hebben? <a href="https://resto-online.be/vjeudjeu" className="underline font-medium">Bestel hier</a> je vlees en boxen voor thuis!
           </div>
           <div className="relative flex items-center pt-3 lg:pt-2">
             {/* Left side - Empty for spacing */}
@@ -175,5 +175,6 @@ const Header = () => {
     </>
   );
 };
+
 
 export default Header;

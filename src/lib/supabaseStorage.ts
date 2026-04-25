@@ -67,13 +67,19 @@ export const getImages = async (category: MenuCategory): Promise<string[]> => {
       return [];
     }
 
-    // Get public URLs for all files
-    const urls = data.map((file) => {
-      const { data: urlData } = supabase.storage
-        .from(BUCKET_NAME)
-        .getPublicUrl(`${category}/${file.name}`);
-      return urlData.publicUrl;
-    });
+    // Get public URLs for all files and append a version query param.
+    // This prevents stale browser cache when a file is updated in place.
+    const urls = data
+      .filter((file) => !!file.name)
+      .map((file) => {
+        const { data: urlData } = supabase.storage
+          .from(BUCKET_NAME)
+          .getPublicUrl(`${category}/${file.name}`);
+
+        const url = new URL(urlData.publicUrl);
+        url.searchParams.set("v", file.updated_at || file.created_at || file.name);
+        return url.toString();
+      });
 
     return urls;
   } catch (error) {
@@ -101,7 +107,8 @@ export const deleteImage = async (imageUrl: string): Promise<void> => {
 
     // Path is everything after "public/[bucket]/"
     // We know bucket is at publicIndex + 1, so path starts at publicIndex + 2
-    const path = pathParts.slice(publicIndex + 2).join("/");
+    const encodedPath = pathParts.slice(publicIndex + 2).join("/");
+    const path = decodeURIComponent(encodedPath);
 
     const { error } = await supabase.storage
       .from(BUCKET_NAME)

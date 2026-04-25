@@ -105,14 +105,8 @@ const Admin = () => {
       const fileArray = Array.from(files);
       const urls = await uploadMultipleImages(fileArray, category);
       
-      // Update state
-      if (category === "lunch") {
-        setLunchImages((prev) => [...prev, ...urls]);
-      } else if (category === "diner") {
-        setDinerImages((prev) => [...prev, ...urls]);
-      } else if (category === "suggesties") {
-        setSuggestiesImages((prev) => [...prev, ...urls]);
-      }
+      // Keep local state synced with backend order and metadata.
+      await loadImages();
       
       alert(`${fileArray.length} foto('s) succesvol geüpload!`);
     } catch (error) {
@@ -147,15 +141,7 @@ const Admin = () => {
 
     try {
       await deleteImage(imageUrl);
-      images.splice(index, 1);
-
-      if (category === "lunch") {
-        setLunchImages(images);
-      } else if (category === "diner") {
-        setDinerImages(images);
-      } else if (category === "suggesties") {
-        setSuggestiesImages(images);
-      }
+      await loadImages();
 
       alert("Foto verwijderd!");
     } catch (error) {
