@@ -110,13 +110,24 @@ export const deleteImage = async (imageUrl: string): Promise<void> => {
     const encodedPath = pathParts.slice(publicIndex + 2).join("/");
     const path = decodeURIComponent(encodedPath);
 
-    const { error } = await supabase.storage
+    const { data, error } = await supabase.storage
       .from(BUCKET_NAME)
       .remove([path]);
 
     if (error) {
       console.error("Error deleting image:", error);
       throw error;
+    }
+
+    // Supabase geeft geen error als een DELETE-policy ontbreekt: het
+    // verwijdert simpelweg niets en geeft een lege lijst terug. Dat zou
+    // er anders uitzien als een geslaagde verwijdering terwijl de foto
+    // blijft staan, dus controleren we dat hier expliciet.
+    if (!data || data.length === 0) {
+      throw new Error(
+        `Verwijderen mislukt: geen rechten om "${path}" te verwijderen. ` +
+          `Controleer de DELETE-policy op de "${BUCKET_NAME}" bucket in Supabase.`
+      );
     }
   } catch (error) {
     console.error("Error deleting image:", error);

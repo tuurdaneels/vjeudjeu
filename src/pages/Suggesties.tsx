@@ -47,8 +47,8 @@ const Suggesties = () => {
                 ))
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
-                  <p>Geen suggestie foto's beschikbaar.</p>
-                  <p className="text-sm mt-2">Upload foto's via de admin pagina.</p>
+                  <p>Er zijn op dit moment geen suggesties beschikbaar.</p>
+                  <p className="text-sm mt-2">Kom binnenkort nog eens terug of neem gerust contact met ons op.</p>
                 </div>
               )}
             </div>
