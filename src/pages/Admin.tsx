@@ -5,11 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { X, Upload, LogOut, Loader2 } from "lucide-react";
 import { uploadMultipleImages, getImages, deleteImage, type MenuCategory } from "@/lib/supabaseStorage";
-import { supabase } from "@/lib/supabase";
+
+// Wachtwoord staat in VITE_ADMIN_PASSWORD (.env). Bewust GEEN fallback-default:
+// zonder ingesteld wachtwoord blijft de login dicht i.p.v. op een bekend
+// standaardwachtwoord open te staan.
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD as string | undefined;
+const AUTH_STORAGE_KEY = "admin_authenticated";
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [lunchImages, setLunchImages] = useState<string[]>([]);
   const [dinerImages, setDinerImages] = useState<string[]>([]);
@@ -17,38 +21,12 @@ const Admin = () => {
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Check Supabase session & listen to auth changes
+  // Onthoud een eerdere login binnen deze browser.
   useEffect(() => {
-    let mounted = true;
-
-    const init = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (mounted && session) {
-        setIsAuthenticated(true);
-        loadImages();
-      }
-    };
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!mounted) return;
-      if (session) {
-        setIsAuthenticated(true);
-        loadImages();
-      } else {
-        setIsAuthenticated(false);
-      }
-    });
-
-    init();
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
+    if (localStorage.getItem(AUTH_STORAGE_KEY) === "true") {
+      setIsAuthenticated(true);
+      loadImages();
+    }
   }, []);
 
   const loadImages = async () => {
@@ -70,50 +48,69 @@ const Admin = () => {
     }
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) {
-      alert("Vul een e-mailadres in");
+
+    if (!ADMIN_PASSWORD) {
+      alert(
+        "Er is geen admin-wachtwoord ingesteld. Zet VITE_ADMIN_PASSWORD in het .env-bestand en herstart de dev-server."
+      );
       return;
     }
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      alert(`Inloggen mislukt: ${error.message}`);
+    if (password !== ADMIN_PASSWORD) {
+      alert("Onjuist wachtwoord");
       return;
     }
 
+    localStorage.setItem(AUTH_STORAGE_KEY, "true");
     setIsAuthenticated(true);
-    await loadImages();
     setPassword("");
+    loadImages();
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  const handleLogout = () => {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
     setIsAuthenticated(false);
   };
 
   const handleImageUpload = async (
     category: MenuCategory,
-    files: FileList | null
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    const input = event.target;
+    const files = input.files;
     if (!files || files.length === 0) return;
 
     setUploading(true);
     try {
       const fileArray = Array.from(files);
-      const urls = await uploadMultipleImages(fileArray, category);
-      
+      const { urls, errors } = await uploadMultipleImages(fileArray, category);
+
       // Keep local state synced with backend order and metadata.
       await loadImages();
-      
-      alert(`${fileArray.length} foto('s) succesvol geüpload!`);
+
+      if (errors.length > 0) {
+        alert(
+          `${urls.length} van ${fileArray.length} foto('s) geüpload.\n\n` +
+            `Mislukt:\n${errors.join("\n")}`
+        );
+      } else {
+        alert(`${urls.length} foto('s) succesvol geüpload!`);
+      }
     } catch (error) {
       console.error("Error uploading images:", error);
-      alert("Fout bij het uploaden van foto's");
+      alert(
+        `Fout bij het uploaden van foto's: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
     } finally {
       setUploading(false);
+      // Reset de input: zonder dit verandert input.value niet als je dezelfde
+      // foto opnieuw kiest, vuurt onChange niet, en lijkt de upload "niets te
+      // doen".
+      input.value = "";
     }
   };
 
@@ -146,7 +143,11 @@ const Admin = () => {
       alert("Foto verwijderd!");
     } catch (error) {
       console.error("Error deleting image:", error);
-      alert("Fout bij het verwijderen van de foto");
+      alert(
+        `Fout bij het verwijderen van de foto: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
     }
   };
 
@@ -162,14 +163,6 @@ const Admin = () => {
             <div className="bg-card border border-border rounded-lg p-8">
               <h1 className="section-title text-center mb-6">Admin Login</h1>
               <form onSubmit={handleLogin} className="space-y-4">
-                <Input
-                  type="email"
-                  placeholder="E-mailadres"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full"
-                  autoComplete="username"
-                />
                 <Input
                   type="password"
                   placeholder="Wachtwoord"
@@ -232,7 +225,7 @@ const Admin = () => {
                     type="file"
                     accept="image/*"
                     multiple
-                    onChange={(e) => handleImageUpload("lunch", e.target.files)}
+                    onChange={(e) => handleImageUpload("lunch", e)}
                     className="cursor-pointer"
                     disabled={uploading}
                   />
@@ -283,7 +276,7 @@ const Admin = () => {
                     type="file"
                     accept="image/*"
                     multiple
-                    onChange={(e) => handleImageUpload("diner", e.target.files)}
+                    onChange={(e) => handleImageUpload("diner", e)}
                     className="cursor-pointer"
                     disabled={uploading}
                   />
@@ -334,7 +327,7 @@ const Admin = () => {
                     type="file"
                     accept="image/*"
                     multiple
-                    onChange={(e) => handleImageUpload("suggesties", e.target.files)}
+                    onChange={(e) => handleImageUpload("suggesties", e)}
                     className="cursor-pointer"
                     disabled={uploading}
                   />
