@@ -2,6 +2,17 @@ import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
 import emailjs from "@emailjs/browser";
 
+// Standaardwaarde per select-stap. Deze dropdowns tonen visueel al de eerste
+// optie, maar zonder deze defaults blijft de state leeg tot je actief opnieuw
+// selecteert — waardoor "Volgende" ten onrechte "Vul een antwoord in" gaf.
+// De strings moeten exact overeenkomen met de <option value="…"> in renderInput.
+const SELECT_DEFAULTS: Record<number, string> = {
+  3: "Middag",
+  5: "€65-€75 (voorgerecht, hoofdgerecht, dessert)",
+  6: "Ja",
+  7: "Ja",
+};
+
 const OpMaatVoorstel = () => {
   const questions = [
     "Naam en voornaam:",
@@ -32,7 +43,7 @@ const OpMaatVoorstel = () => {
       setAnswer(savedEmail || "");
       setAnswer2(savedPhone || "");
     } else {
-      setAnswer(savedAnswer || "");
+      setAnswer(savedAnswer || SELECT_DEFAULTS[step] || "");
       setAnswer2("");
     }
     
